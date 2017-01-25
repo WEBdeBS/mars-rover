@@ -1,19 +1,25 @@
+const MAX_X = 5
+const MAX_Y = 5
+
+const wrapX = x => Math.abs(x + MAX_X) % MAX_X
+const wrapY = x => Math.abs(x + MAX_Y) % MAX_Y
+
 const moveForward = ({ x, y, d, s }) => {
   switch (d) {
-    case 'N': return ({ x, y: --y, d, s })
-    case 'S': return ({ x, y: ++y, d, s })
-    case 'W': return ({ x: --x, y, d, s })
-    case 'E': return ({ x: ++x, y, d, s })
+    case 'N': return ({ x, y: wrapY(--y), d, s })
+    case 'S': return ({ x, y: wrapY(++y), d, s })
+    case 'W': return ({ x: wrapX(--x), y, d, s })
+    case 'E': return ({ x: wrapX(++x), y, d, s })
     default: return ({ x, y, d, s })
   }
 }
 
 const moveBackward = ({ x, y, d, s}) => {
   switch (d) {
-    case 'N': return ({ x, y: ++y, d, s })
-    case 'S': return ({ x, y: --y, d, s })
-    case 'W': return ({ x: ++x, y, d, s })
-    case 'E': return ({ x: --x, y, d, s })
+    case 'N': return ({ x, y: wrapY(++y), d, s })
+    case 'S': return ({ x, y: wrapY(--y), d, s })
+    case 'W': return ({ x: wrapX(++x), y, d, s })
+    case 'E': return ({ x: wrapX(--x), y, d, s })
     default: return ({ x, y, d, s })
   }
 }
