@@ -1,86 +1,67 @@
-const assert = require('chai').assert
-const Rover = require('../app')
+const assert = require('assert')
+const mr = require('../app/index')
 
-describe('Mars rover', function(){
+describe('mars-rover', () => {
 
- it('should set initial position', function(){
+  it('should start', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }),
+      { x: 1, y: 1, d: 'E', s: 'ok' }
+    )
+  })
 
-   const newPosition = Rover(4, 6, 'N')
+  it('should accept one command', () => {
+    const out = mr({ x: 1, y: 1, d: 'E' }, ['f'])
+    assert.deepEqual(out.s, 'ok')
+  })
 
-   assert.equal(4, newPosition.x)
-   assert.equal(6, newPosition.y)
-   assert.equal('N', newPosition.facing)
+  it('should accept commands', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }, ['f', 'f', 'r', 'f']),
+      { x: 3, y: 2, d: 'S', s: 'ok' }
+    )
+  })
 
- })
+  it('should move forward on x', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }, ['f']),
+      { x: 2, y: 1, d: 'E', s: 'ok' }
+    )
+  })
 
- it('should move forward', function(){
+  it('should move forward on y', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'N' }, ['f']),
+      { x: 1, y: 0, d: 'N', s: 'ok' }
+    )
+  })
 
-   const newPosition = Rover(4, 6, 'N')(['F'])
+  it('should move backward on x', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }, ['b']),
+      { x: 0, y: 1, d: 'E', s: 'ok' }
+    )
+  })
 
-   assert.equal(4, newPosition.x)
-   assert.equal(7, newPosition.y)
-   assert.equal('N', newPosition.facing)
+  it('should move backward on y', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'N' }, ['b']),
+      { x: 1, y: 2, d: 'N', s: 'ok' }
+    )
+  })
 
- })
-it('should accept many commands', function(){
+  it('should rotate right', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }, ['r']),
+      { x: 1, y: 1, d: 'S', s: 'ok' }
+    )
+  })
 
-   const newPosition = Rover(4, 6, 'N')(['F','F'])
-
-   assert.equal(4, newPosition.x)
-   assert.equal(8, newPosition.y)
-   assert.equal('N', newPosition.facing)
-
- })
-
- it('should accept many directions', function(){
-
-   const newPosition = Rover(4, 6, 'N')(['F','B'])
-
-   assert.equal(4, newPosition.x)
-   assert.equal(6, newPosition.y)
-   assert.equal('N', newPosition.facing)
-
- })
-
- it('should accept many directions', function(){
-
-   const newPosition = Rover(4, 6, 'N')(['L'])
-
-   assert.equal(4, newPosition.x)
-   assert.equal(6, newPosition.y)
-   assert.equal('W', newPosition.facing)
-
- })
-
- it('should accept many directions', function(){
-
-   const newPosition = Rover(4, 6, 'N')(['R'])
-
-   assert.equal(4, newPosition.x)
-   assert.equal(6, newPosition.y)
-   assert.equal('E', newPosition.facing)
-
- })
-
-
- it('should accept many directions', function(){
-
-   const newPosition = Rover(4, 6, 'N')(['R','F','F','R','B','B','L'])
-
-   assert.equal(6, newPosition.x)
-   assert.equal(8, newPosition.y)
-   assert.equal('E', newPosition.facing)
-
- })
-
-it('with obstacles should blocking in front of obstacle', function(){
-
-   const newPosition = Rover(4, 6, 'N', [{x:4,y:8}])(['F','F'])
-
-   assert.equal(4, newPosition.x)
-   assert.equal(7, newPosition.y)
-   assert.equal('N', newPosition.facing)
-
- })
+  it('should rotate left', () => {
+    assert.deepEqual(
+      mr({ x: 1, y: 1, d: 'E' }, ['l']),
+      { x: 1, y: 1, d: 'N', s: 'ok' }
+    )
+  })
 
 })

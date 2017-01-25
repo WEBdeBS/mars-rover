@@ -1,57 +1,58 @@
-const mappaNord = {
-  'F': function(x,y, obs){return Rover(x, y+1, 'N', obs)},
-  'B': function(x,y, obs){return Rover(x, y-1, 'N', obs)},
-  'L': function(x,y, obs){return Rover(x, y, 'W', obs)},
-  'R': function(x,y, obs){return Rover(x, y, 'E', obs)}
-}
-const mappaEast = {
-  'F': function(x,y, obs){return Rover(x+1, y, 'E',obs)},
-  'B': function(x,y, obs){return Rover(x-1, y, 'E',obs)},
-  'L': function(x,y, obs){return Rover(x, y, 'N',obs)},
-  'R': function(x,y, obs){return Rover(x, y, 'S',obs)}
-}
-
-const mappaWest = {
-  'F': function(x,y, obs){return Rover(x-1, y, 'W',obs)},
-  'B': function(x,y, obs){return Rover(x+1, y, 'W',obs)},
-  'L': function(x,y, obs){return Rover(x, y, 'S',obs)},
-  'R': function(x,y, obs){return Rover(x, y, 'N',obs)}
-}
-
-const mappaSouth = {
-  'F': function(x,y, obs){return Rover(x, y-1, 'S',obs)},
-  'B': function(x,y, obs){return Rover(x, y+1, 'S',obs)},
-  'L': function(x,y, obs){return Rover(x, y, 'E',obs)},
-  'R': function(x,y, obs){return Rover(x, y, 'W',obs)}
-}
-
-const mappa = {
-  'N': mappaNord,
-  'S': mappaSouth,
-  'W': mappaWest,
-  'E': mappaEast
-}
-
-function Rover(x, y, f, obstacles = []) {
-  
-  var fun = function(commands) {
-
-    if (commands.length === 0){
-      return Rover(x,y,f)
-    }
-    [cmd,...tail] = commands
-    const next = mappa[f][cmd](x,y)
-    const hit = obstacles.find(o => { return o.x === next.x && o.y === next.y})
-    
-    if (hit) {
-      return Rover(x,y,f)
-    }
-    return mappa[f][cmd](x,y,obstacles)(tail)
+const moveForward = ({ x, y, d, s }) => {
+  switch (d) {
+    case 'N': return ({ x, y: --y, d, s })
+    case 'S': return ({ x, y: ++y, d, s })
+    case 'W': return ({ x: --x, y, d, s })
+    case 'E': return ({ x: ++x, y, d, s })
+    default: return ({ x, y, d, s })
   }
-  fun.x = x
-  fun.y = y
-  fun.facing = f
-  return fun
 }
 
-module.exports = Rover
+const moveBackward = ({ x, y, d, s}) => {
+  switch (d) {
+    case 'N': return ({ x, y: ++y, d, s })
+    case 'S': return ({ x, y: --y, d, s })
+    case 'W': return ({ x: ++x, y, d, s })
+    case 'E': return ({ x: --x, y, d, s })
+    default: return ({ x, y, d, s })
+  }
+}
+
+const turnLeft = ({ x, y, d, s}) => {
+  switch (d) {
+    case 'N': return ({ x, y, d: 'W', s })
+    case 'S': return ({ x, y, d: 'E', s })
+    case 'W': return ({ x, y, d: 'S', s })
+    case 'E': return ({ x, y, d: 'N', s })
+    default: return d
+  }
+}
+
+const turnRight = ({ x, y, d, s}) => {
+  switch (d) {
+    case 'N': return ({ x, y, d: 'E', s})
+    case 'S': return ({ x, y, d: 'W', s})
+    case 'W': return ({ x, y, d: 'N', s})
+    case 'E': return ({ x, y, d: 'S', s})
+    default: return d
+  }
+}
+
+const move = (state, command) => {
+  switch (command) {
+    case 'f': return moveForward(state)
+    case 'b': return moveBackward(state)
+    case 'l': return turnLeft(state)
+    case 'r': return turnRight(state)
+    default: return state
+  }
+}
+
+const mr = ({ x, y, d, s }, commands) =>
+  !commands ? ({ x, y, d, s: 'ok' }) :
+    commands.reduce(
+      (state, command) => move(state, command),
+      { x, y, d, s: 'ok' }
+    )
+
+module.exports = mr
