@@ -2,24 +2,37 @@ const MAX_X = 5
 const MAX_Y = 5
 
 const wrapX = x => Math.abs(x + MAX_X) % MAX_X
-const wrapY = x => Math.abs(x + MAX_Y) % MAX_Y
+const wrapY = y => Math.abs(y + MAX_Y) % MAX_Y
+
+const OBSTACLES = [
+  [0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0],
+]
+
+const tryMove = (startX, startY, endX, endY) =>
+  !OBSTACLES[endY][endX] ?
+    ({ x: endX, y: endY, s: 'ok' }) :
+    ({ x: startX, y: startY, s: 'OBSTACLE_FOUND' })
 
 const moveForward = ({ x, y, d, s }) => {
   switch (d) {
-    case 'N': return ({ x, y: wrapY(--y), d, s })
-    case 'S': return ({ x, y: wrapY(++y), d, s })
-    case 'W': return ({ x: wrapX(--x), y, d, s })
-    case 'E': return ({ x: wrapX(++x), y, d, s })
+    case 'N': return Object.assign(tryMove(x, y, x, wrapY(y-1)), { d })
+    case 'S': return Object.assign(tryMove(x, y, x, wrapY(y+1)), { d })
+    case 'W': return Object.assign(tryMove(x, y, wrapX(x-1), y), { d })
+    case 'E': return Object.assign(tryMove(x, y, wrapX(x+1), y), { d })
     default: return ({ x, y, d, s })
   }
 }
 
-const moveBackward = ({ x, y, d, s}) => {
+const moveBackward = ({ x, y, d, s }) => {
   switch (d) {
-    case 'N': return ({ x, y: wrapY(++y), d, s })
-    case 'S': return ({ x, y: wrapY(--y), d, s })
-    case 'W': return ({ x: wrapX(++x), y, d, s })
-    case 'E': return ({ x: wrapX(--x), y, d, s })
+    case 'N': return Object.assign(tryMove(x, y, x, wrapY(y+1)), { d })
+    case 'S': return Object.assign(tryMove(x, y, x, wrapY(y-1)), { d })
+    case 'W': return Object.assign(tryMove(x, y, wrapX(x+1), y), { d })
+    case 'E': return Object.assign(tryMove(x, y, wrapX(x-1), y), { d })
     default: return ({ x, y, d, s })
   }
 }
@@ -55,10 +68,9 @@ const move = (state, command) => {
 }
 
 const mr = ({ x, y, d, s }, commands) =>
-  !commands ? ({ x, y, d, s: 'ok' }) :
-    commands.reduce(
-      (state, command) => move(state, command),
-      { x, y, d, s: 'ok' }
-    )
+  (commands || []).reduce(
+    (state, command) => move(state, command),
+    { x, y, d, s: 'ok' }
+  )
 
 module.exports = mr
